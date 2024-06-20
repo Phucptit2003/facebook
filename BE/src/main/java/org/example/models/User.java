@@ -12,7 +12,8 @@ import java.util.Collection;
 
 @Node
 public class User implements UserDetails {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
     private String name;
     private String username;

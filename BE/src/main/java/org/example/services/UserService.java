@@ -18,6 +18,9 @@ public class UserService {
     }
 
     public User createUser(CreateUserRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username already exists. Please choose a different username.");
+        }
         User user = new User();
 
         user.setName(request.getName());
