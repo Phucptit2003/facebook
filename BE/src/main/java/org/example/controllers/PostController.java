@@ -1,6 +1,7 @@
 package org.example.controllers;
 
 //import org.example.models.Author;
+import org.example.models.Image;
 import org.example.models.Post;
 import org.example.models.User;
 import org.example.repositories.PostRepository;
@@ -29,6 +30,7 @@ public class PostController {
     public List<Post> getAllPost(){
         return postService.getAllPost();
     }
+
 
     @PostMapping
     public Post createPost(

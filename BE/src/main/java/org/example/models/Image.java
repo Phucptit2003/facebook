@@ -7,9 +7,19 @@ import org.springframework.data.neo4j.core.schema.Node;
 @Node
 public class Image {
     @Id
+    @GeneratedValue
     private Long id;
     private String filename;
     private String contentType;
+
+    public Image() {
+    }
+
+    public Image(Long id, String filename, String contentType) {
+        this.id = id;
+        this.filename = filename;
+        this.contentType = contentType;
+    }
 
     public Long getId() {
         return id;

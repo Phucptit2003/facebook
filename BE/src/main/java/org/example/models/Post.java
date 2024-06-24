@@ -2,6 +2,8 @@ package org.example.models;
 
 
 import lombok.Getter;
+import org.example.repositories.PostRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -14,15 +16,33 @@ import java.util.UUID;
 @Getter
 @Node
 public class Post {
+
     @Id
     @GeneratedValue
     private Long id;
     private String title;
     private String content;
+    private String author;
+    private String imgUrl;
 
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
     @Relationship(type = "HAS_IMAGE", direction = Relationship.Direction.OUTGOING)
-    private List<Image> images = new ArrayList<>();
+    private Image images = new Image();
 
     @Relationship(type = "HAS_VIDEO", direction = Relationship.Direction.OUTGOING)
     private List<Video> videos = new ArrayList<>();
@@ -51,11 +71,11 @@ public class Post {
         this.content = content;
     }
 
-    public List<Image> getImages() {
+    public Image getImages() {
         return images;
     }
 
-    public void setImages(List<Image> images) {
+    public void setImages(Image images) {
         this.images = images;
     }
 
@@ -77,5 +97,6 @@ public class Post {
     public void setCreator(User creator) {
         this.creator = creator;
     }
+
 }
 
