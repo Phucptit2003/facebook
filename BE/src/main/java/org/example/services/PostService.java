@@ -11,6 +11,10 @@ import org.example.queryresults.PostQueryResult;
 import org.example.repositories.PostRepository;
 import org.example.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.core.Neo4jOperations;
+import org.springframework.data.neo4j.core.Neo4jTemplate;
+import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +24,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,7 +37,8 @@ public class PostService {
     private final UserRepository userRepository;
     private String username;
 
-
+    @Autowired
+    private Neo4jTemplate neo4jTemplate;
     @Autowired
     public PostService(PostRepository postRepository, UserController userController, UserService userService, UserRepository userRepository) {
         this.postRepository = postRepository;
@@ -57,6 +64,20 @@ public class PostService {
         return getAllPost;
     }
     @Transactional
+    public void toggleLike(String username,Long postId){
+        System.out.println("Service:"+username+postId);
+        boolean alreadyLiked = neo4jTemplate.count("MATCH (u:User {username: $username})-[r:LIKES]->(p:Post) WHERE ID(p)=$postId RETURN count(r) ",
+                Map.of("username", username, "postId", postId)) > 0;
+
+        if (alreadyLiked) {
+            postRepository.deleteLike(username,postId);
+
+        } else {
+            System.out.println("Like de");
+            postRepository.createLike(username,postId);
+        }
+    }
+    @Transactional
     public Post createPost(String title, String content, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
         Post post = new Post();
         post.setTitle(title);
@@ -80,6 +101,34 @@ public class PostService {
          postRepository.createPostRelationship(username,postId);
 
         return post1;
+    }
+    @Transactional
+    public Post findPostById(Long postId) {
+        Optional<Post> checkPost = postRepository.findById(postId);
+        if (!checkPost.isPresent()) {
+            throw new IllegalArgumentException("Post with ID " + postId + " not found.");
+        }else{
+            return checkPost.get();
+        }
+    }
+    @Transactional
+    public Post editPost(Long postId, String title, String content, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
+        Post post= postRepository.updatePost(postId,title,content,imageFile,videoFile);
+        // Update the image file if provided
+        if (imageFile != null) {
+            Image newImage = saveImageFile(imageFile, "C:\\Users\\P R O B O O K\\Documents\\Phuc\\Facebook\\FE/FE/public/picture");
+            post.setImages(newImage);
+        }
+
+        // Update the video file if provided
+        if (videoFile != null) {
+            Video newVideo = saveVideoFile(videoFile, "videos");
+            post.getVideos().clear();
+            post.getVideos().add(newVideo);
+        } else {
+            post.getVideos().clear();
+        }
+        return post;
     }
 
     private Image saveImageFile(MultipartFile file, String folder) throws IOException {
