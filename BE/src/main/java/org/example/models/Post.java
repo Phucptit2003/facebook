@@ -2,6 +2,8 @@ package org.example.models;
 
 
 import lombok.Getter;
+import org.example.realtionship.CommentRelationship;
+import org.example.realtionship.ShareRelationship;
 import org.example.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -24,6 +26,57 @@ public class Post {
     private String content;
     private String author;
     private String imgUrl;
+    private int interactions;
+    @Relationship(type = "HAS_LIKE", direction = Relationship.Direction.INCOMING)
+    private List<User> likedByUsers;
+
+    @Relationship(type = "HAS_COMMENT", direction = Relationship.Direction.INCOMING)
+    private List<CommentRelationship> comments;
+
+    @Relationship(type = "HAS_SHARE", direction = Relationship.Direction.INCOMING)
+    private List<ShareRelationship> sharedByUsers;
+    @Relationship(type = "HAS_POST", direction = Relationship.Direction.INCOMING)
+    private Category category;
+
+
+    public List<User> getLikedByUsers() {
+        return likedByUsers;
+    }
+
+    public void setLikedByUsers(List<User> likedByUsers) {
+        this.likedByUsers = likedByUsers;
+    }
+
+    public void setComments(List<CommentRelationship> comments) {
+        this.comments = comments;
+    }
+
+    public List<ShareRelationship> getSharedByUsers() {
+        return sharedByUsers;
+    }
+
+    public void setSharedByUsers(List<ShareRelationship> sharedByUsers) {
+        this.sharedByUsers = sharedByUsers;
+    }
+
+
+    public int getInteractions() {
+        return interactions;
+    }
+
+    public void setInteractions(int interactions) {
+        this.interactions = interactions;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+
 
     public String getImgUrl() {
         return imgUrl;

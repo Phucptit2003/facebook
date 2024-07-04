@@ -3,12 +3,14 @@ package org.example.models;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 @Node
 public class User implements UserDetails {
@@ -19,6 +21,22 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private String roles;
+
+    @Relationship(type = "FRIEND")
+    private List<User> friends;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+
+    public List<User> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<User> friends) {
+        this.friends = friends;
+    }
 
     public User() {
     }

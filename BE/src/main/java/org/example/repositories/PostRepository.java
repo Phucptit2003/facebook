@@ -48,11 +48,39 @@ public interface PostRepository extends Neo4jRepository<Post,Long> {
                 ")\n" +
                 "RETURN p")
         Post updatePost(@Param("postId") Long postId, @Param("title") String title, @Param("content") String content, @Param("imageFile")MultipartFile imageFile, @Param("videoFile") MultipartFile videoFile);
-        @Query("MATCH (u:User {username: $username}), (p:Post) WHERE ID(p)=$postId CREATE (u)-[:LIKES]->(p)")
-        void createLike(@Param("username") String username,@Param("postId") Long postId);
 
-        @Query("MATCH (u:User {username: $username})-[r:LIKES]->(p:Post )  WHERE ID(p)=$postId DELETE r")
-        void deleteLike(@Param("username") String username, @Param("postId") Long postId);
+        @Query("MATCH (u:User), (p:Post) WHERE u.username = $username AND ID(p) = $postId " +
+                "MERGE (u)-[:LIKED {timestamp: datetime()}]->(p) " +
+                "RETURN p")
+        Post likePost(@Param("username") String username, @Param("postId") Long postId);
+
+        @Query("MATCH (u:User)-[l:LIKES]->(p:Post) " +
+                "WHERE u.username=$username AND ID(p) = $postId " +
+                "DELETE l " +
+                "RETURN CASE WHEN COUNT(l) > 0 THEN true ELSE false END AS removed")
+        boolean toggleLike(@Param("username") String username, @Param("postId") Long postId);
+
+
+        @Query("MATCH (u:User), (p:Post) WHERE u.username=$username AND ID(p) = $postId " +
+                "MERGE (u)-[:COMMENTED {content: $content, timestamp: datetime()}]->(p) " +
+                "RETURN p")
+        Post commentPost(@Param("username") String username, @Param("postId") Long postId, @Param("content") String content);
+        @Query("MATCH (u:User), (p:Post) WHERE u.username=$username AND ID(p) = $postId " +
+                "MERGE (u)-[:SHARED {timestamp: datetime()}]->(p) " +
+                "RETURN p")
+        Post sharePost(@Param("username") String username, @Param("postId") Long postId);
+
+        @Query("MATCH (p:Post)\n" +
+                "OPTIONAL MATCH (p)-[:HAS_LIKE]->(l)\n" +
+                "OPTIONAL MATCH (p)-[:HAS_COMMENT]->(c)\n" +
+                "OPTIONAL MATCH (p)-[:HAS_SHARE]->(s)\n" +
+                "OPTIONAL MATCH (p)-[:HAS_IMAGE]->(image:Image)\n" +
+                "OPTIONAL MATCH (p)-[:HAS_VIDEO]->(video:Video)\n" +
+                "WITH p, COUNT(l) AS likeCount, COUNT(c) AS commentCount, COUNT(s) AS shareCount, COLLECT(DISTINCT image) AS images, COLLECT(DISTINCT video) AS videos\n" +
+                "RETURN p, images, videos\n" +
+                "ORDER BY (likeCount + commentCount + shareCount) DESC\n" +
+                "LIMIT 10")
+        List<Post> findTop10ByInteractions();
 
         @Query("MATCH (user:User {username: $username}),(post:Post )"+"where ID(post)=$postId"+ " CREATE (user)-[:createPost ]->(post)"+
                 "RETURN user, post")

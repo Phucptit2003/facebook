@@ -3,7 +3,7 @@ package org.example.queryresults;
 
 import org.example.models.User;
 
-public class CourseEnrolmentQueryResult {
+public class                    CourseEnrolmentQueryResult {
     private User user;
 
     public CourseEnrolmentQueryResult() {

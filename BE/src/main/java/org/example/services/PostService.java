@@ -3,10 +3,7 @@ package org.example.services;
 //import org.example.models.Author;
 import jakarta.transaction.Transactional;
 import org.example.controllers.UserController;
-import org.example.models.Image;
-import org.example.models.Post;
-import org.example.models.User;
-import org.example.models.Video;
+import org.example.models.*;
 import org.example.queryresults.PostQueryResult;
 import org.example.repositories.PostRepository;
 import org.example.repositories.UserRepository;
@@ -23,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,27 +62,13 @@ public class PostService {
         return getAllPost;
     }
     @Transactional
-    public void toggleLike(String username,Long postId){
-        System.out.println("Service:"+username+postId);
-        boolean alreadyLiked = neo4jTemplate.count("MATCH (u:User {username: $username})-[r:LIKES]->(p:Post) WHERE ID(p)=$postId RETURN count(r) ",
-                Map.of("username", username, "postId", postId)) > 0;
-
-        if (alreadyLiked) {
-            postRepository.deleteLike(username,postId);
-
-        } else {
-            System.out.println("Like de");
-            postRepository.createLike(username,postId);
-        }
-    }
-    @Transactional
     public Post createPost(String title, String content, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
         Post post = new Post();
         post.setTitle(title);
         post.setContent(content);
 
         if (imageFile != null) {
-            Image image = saveImageFile(imageFile, "C:\\Users\\P R O B O O K\\Documents\\Phuc\\Facebook\\FE/FE/public/picture");
+            Image image = saveImageFile(imageFile, "C:\\Users\\phucl\\OneDrive\\Desktop\\JAVA_INTER\\Facebook\\FE\\FE\\public\\picture");
 //            post.getImages().add(image);
             post.setImages(image);
         }
@@ -116,7 +100,7 @@ public class PostService {
         Post post= postRepository.updatePost(postId,title,content,imageFile,videoFile);
         // Update the image file if provided
         if (imageFile != null) {
-            Image newImage = saveImageFile(imageFile, "C:\\Users\\P R O B O O K\\Documents\\Phuc\\Facebook\\FE/FE/public/picture");
+            Image newImage = saveImageFile(imageFile, "C:\\Users\\phucl\\OneDrive\\Desktop\\JAVA_INTER\\Facebook\\FE\\FE\\public\\picture");
             post.setImages(newImage);
         }
 
