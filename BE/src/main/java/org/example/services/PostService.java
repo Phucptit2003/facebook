@@ -34,6 +34,7 @@ public class PostService {
     private final UserService userService;
     private final UserRepository userRepository;
     private String username;
+    private Category category;
 
     @Autowired
     private Neo4jTemplate neo4jTemplate;
@@ -62,11 +63,11 @@ public class PostService {
         return getAllPost;
     }
     @Transactional
-    public Post createPost(String title, String content, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
+    public Post createPost(String title, String content,Category category, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
         Post post = new Post();
         post.setTitle(title);
         post.setContent(content);
-
+        post.setCategory(category);
         if (imageFile != null) {
             Image image = saveImageFile(imageFile, "C:\\Users\\phucl\\OneDrive\\Desktop\\JAVA_INTER\\Facebook\\FE\\FE\\public\\picture");
 //            post.getImages().add(image);
@@ -96,7 +97,7 @@ public class PostService {
         }
     }
     @Transactional
-    public Post editPost(Long postId, String title, String content, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
+    public Post editPost(Long postId, String title, String content,Category category, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
         Post post= postRepository.updatePost(postId,title,content,imageFile,videoFile);
         // Update the image file if provided
         if (imageFile != null) {

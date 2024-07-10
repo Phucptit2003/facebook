@@ -54,7 +54,7 @@ public interface PostRepository extends Neo4jRepository<Post,Long> {
                 "RETURN p")
         Post likePost(@Param("username") String username, @Param("postId") Long postId);
 
-        @Query("MATCH (u:User)-[l:LIKES]->(p:Post) " +
+        @Query("MATCH (u:User)-[l:LIKED]->(p:Post) " +
                 "WHERE u.username=$username AND ID(p) = $postId " +
                 "DELETE l " +
                 "RETURN CASE WHEN COUNT(l) > 0 THEN true ELSE false END AS removed")
@@ -70,19 +70,30 @@ public interface PostRepository extends Neo4jRepository<Post,Long> {
                 "RETURN p")
         Post sharePost(@Param("username") String username, @Param("postId") Long postId);
 
-        @Query("MATCH (p:Post)\n" +
-                "OPTIONAL MATCH (p)-[:HAS_LIKE]->(l)\n" +
-                "OPTIONAL MATCH (p)-[:HAS_COMMENT]->(c)\n" +
-                "OPTIONAL MATCH (p)-[:HAS_SHARE]->(s)\n" +
+        @Query("MATCH (p:Post),(u:User)\n" +
+                "OPTIONAL MATCH (p)<-[l:LIKED]-(u)\n" +
+                "OPTIONAL MATCH (p)<-[c:COMMENTED]-(u)\n" +
+                "OPTIONAL MATCH (p)<-[s:SHARED]-(u)\n" +
                 "OPTIONAL MATCH (p)-[:HAS_IMAGE]->(image:Image)\n" +
                 "OPTIONAL MATCH (p)-[:HAS_VIDEO]->(video:Video)\n" +
-                "WITH p, COUNT(l) AS likeCount, COUNT(c) AS commentCount, COUNT(s) AS shareCount, COLLECT(DISTINCT image) AS images, COLLECT(DISTINCT video) AS videos\n" +
+                "WITH p, \n" +
+                "     COUNT(DISTINCT l) AS likeCount, \n" +
+                "     COUNT(DISTINCT c) AS commentCount, \n" +
+                "     COUNT(DISTINCT s) AS shareCount, \n" +
+                "     COLLECT(DISTINCT image) AS images, \n" +
+                "     COLLECT(DISTINCT video) AS videos\n" +
                 "RETURN p, images, videos\n" +
                 "ORDER BY (likeCount + commentCount + shareCount) DESC\n" +
-                "LIMIT 10")
+                "LIMIT 10\n")
         List<Post> findTop10ByInteractions();
 
         @Query("MATCH (user:User {username: $username}),(post:Post )"+"where ID(post)=$postId"+ " CREATE (user)-[:createPost ]->(post)"+
                 "RETURN user, post")
         PostQueryResult createPostRelationship(@Param("username") String username,@Param("postId") Long postId);
+
+//        @Query("match (p:Post)where id(p)=$postID\n" +
+//                "optional match (p)-[:HAS_IMAGE]->(image:Image)\n" +
+//                "optional match (p)-[:HAS_VIDEO]->(video:Video)\n" +
+//                "return p,image")
+//        List<Post> fi
 }

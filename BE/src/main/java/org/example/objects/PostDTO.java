@@ -1,10 +1,22 @@
 package org.example.objects;
 
+import org.example.models.Category;
 import org.springframework.web.multipart.MultipartFile;
 
 public class PostDTO {
     String title,content;
-    MultipartFile imageFile,videoFile;
+    Category category;
+    MultipartFile imageFile;
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    MultipartFile videoFile;
 
     public String getTitle() {
         return title;

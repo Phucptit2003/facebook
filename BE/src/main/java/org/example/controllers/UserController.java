@@ -1,6 +1,7 @@
 package org.example.controllers;
 
 import org.example.models.User;
+import org.example.objects.FriendDTO;
 import org.example.objects.UserDTO;
 import org.example.repositories.UserRepository;
 import org.example.requests.CreateUserRequest;
@@ -35,5 +36,11 @@ public class UserController {
         UserDTO responseUser = new UserDTO(user.getName(), user.getUsername(), user.getRoles());
 
         return new ResponseEntity<>(responseUser, HttpStatus.CREATED);
+    }
+    @PostMapping("/addFriend")
+    public ResponseEntity<String> addFriend(@RequestBody FriendDTO friendDTO){
+        userService.addFriend(friendDTO.getUsername1(),friendDTO.getUsername2());
+        System.out.println(friendDTO.getUsername1());
+        return new ResponseEntity<>("Friend added", HttpStatus.CREATED);
     }
 }
