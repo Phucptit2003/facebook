@@ -20,4 +20,7 @@ public interface CategoryRepository extends Neo4jRepository<Category, Long> {
             "OPTIONAL MATCH (p)-[:HAS_VIDEO]->(video:Video)\n" +
             "RETURN ID(p)")
     List<Long> findPostsByCategoryNames(@Param("categoryName") String categoryName);
+
+    @Query("MATCH (post:Post)-[HAS_CATEGORY]->(cate:Category) WHERE ID(post)=$postId return cate")
+    Category getCategory(@Param("postId") Long postId);
 }

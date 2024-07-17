@@ -1,6 +1,7 @@
 package org.example.repositories;
 
 import org.example.controllers.UserController;
+import org.example.models.Category;
 import org.example.models.Image;
 import org.example.models.Post;
 import org.example.queryresults.PostQueryResult;
@@ -27,6 +28,8 @@ public interface PostRepository extends Neo4jRepository<Post,Long> {
                 "where ID(post)=$postId \n" +
                 "return image.filename")
         String getImage(@Param("postId") Long postId);
+
+
 
         @Query("MATCH (p:Post ) where ID(p)=$postId \n" +
                 "SET p.title = $title,\n" +

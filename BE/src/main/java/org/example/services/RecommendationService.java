@@ -37,7 +37,7 @@ public class RecommendationService {
         for (Post post : postsInteracts) {
             post.setImgUrl(postRepository.getImage(post.getId()));
             recommendationPosts.add(post);
-        }
+        }                                                   
         //tìm kiếm các bài post có chung chủ đề
        List<String> categoriesNames = userRepository.findInteractedCategories(username);
         for (String categoryName : categoriesNames) {
